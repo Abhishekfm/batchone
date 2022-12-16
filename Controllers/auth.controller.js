@@ -219,16 +219,38 @@ export const resetPassword = asyncHandler(async (req, res) => {
  ******************************************************/
 export const changePassword = asyncHandler( async (req, res) =>{
     const {user} = req
-    const {oldPassword, newPassword} = req.body;
+
+    const {oldPassword, newPassword, confirmNewPassword} = req.body;
+
+    if(!oldPassword || !newPassword || !confirmNewPassword){
+        throw new CustomError("Provide all Fields", 401);
+    }
+
+    if(newPassword !== confirmNewPassword){
+        throw new CustomError("New Password Not matched with confirm Password", 401);
+    }
+
     const userEmail = user.email;
+
     const userProfile = await User.findOne({ email:userEmail });
-    const isCorrect = await userProfile.comparePassword(oldPassword);
+
+    const isCorrect = await userProfile.comparePassword
+    (oldPassword);
+
     if(!isCorrect){
         throw new CustomError("Old Password is Incorrect", 401);
     }
+
     userProfile.password = newPassword;
+
     await userProfile.save();
+
+    const token = userProfile.getJwtToken();
+
+    res.cookie("token",token,cookieOptions)
+
     userProfile.password = undefined;
+    
     res.status(200).json({
         success:true,
         userProfile
