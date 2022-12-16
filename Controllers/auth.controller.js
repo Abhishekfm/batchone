@@ -211,6 +211,31 @@ export const resetPassword = asyncHandler(async (req, res) => {
 // TODO: create a controller for change password
 
 /******************************************************
+ * @CHANGE_PASSWORD
+ * @route http://localhost:5000/api/auth/password/change
+ * @description User will be able to change password based on cookie token
+ * @parameters  token from url, password and confirmpass
+ * @returns User object
+ ******************************************************/
+export const changePassword = asyncHandler( async (req, res) =>{
+    const {user} = req
+    const {oldPassword, newPassword} = req.body;
+    const userEmail = user.email;
+    const userProfile = await User.findOne({ email:userEmail });
+    const isCorrect = await userProfile.comparePassword(oldPassword);
+    if(!isCorrect){
+        throw new CustomError("Old Password is Incorrect", 401);
+    }
+    userProfile.password = newPassword;
+    await userProfile.save();
+    userProfile.password = undefined;
+    res.status(200).json({
+        success:true,
+        userProfile
+    })
+})
+
+/******************************************************
  * @GET_PROFILE
  * @REQUEST_TYPE GET
  * @route http://localhost:5000/api/auth/profile
