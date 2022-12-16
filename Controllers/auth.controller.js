@@ -214,7 +214,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
  * @CHANGE_PASSWORD
  * @route http://localhost:5000/api/auth/password/change
  * @description User will be able to change password based on cookie token
- * @parameters  token from url, password and confirmpass
+ * @parameters  token from url, old password and new confirmpass
  * @returns User object
  ******************************************************/
 export const changePassword = asyncHandler( async (req, res) =>{
